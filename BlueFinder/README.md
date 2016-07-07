@@ -16,5 +16,5 @@ Two modes exists within BlueFinder: Bluetooth Classic and BLE. To call the BLE r
 ## Version
 - v1.2 released 30 May 2016
 
-## Testing
-- v1.3a - transfering code to run completely in python
+## Future Releases
+- v1.3a - transfering code to run completely in python compared to a comination of bash and python

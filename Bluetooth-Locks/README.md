@@ -1,6 +1,6 @@
 # Hacking Bluetooth Locks
 
-# Comaptible Devices
+# Compatible Devices
 -
 -
 -

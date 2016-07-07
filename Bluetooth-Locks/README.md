@@ -1,7 +1,7 @@
-# Hacking Bluetooth Locks
+# Hacking Bluetooth Low Energy Locks
 Bluetooth door hacking scripts that require Ubertooth or other devices to passively sniff.
 
-# Comaptible Devices
+## Comaptible Devices
 - Quicklock Doorlock
 - Quicklock Padlock
 - iBluLock Padlock
@@ -14,11 +14,11 @@ Bluetooth door hacking scripts that require Ubertooth or other devices to passiv
 - Okidokey Smart Doorlock
 - Meshmotion Bitlock Doorlock
 
-# Requirements
+## Requirements
 - Tested and developed on [Kali Linux](https://www.kali.org/) v2016.1.
 - Bluetooth Smart USB Adapter
 - Ubertooth One
 
-# Build and Install
+## Build and Install
 - Requires Bluez 5.29 (or greater)
 - Scapy 2.3.0 (or greater)

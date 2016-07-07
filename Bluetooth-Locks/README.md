@@ -1,4 +1,5 @@
 # Hacking Bluetooth Locks
+Bluetooth door hacking scripts that require Ubertooth or other devices to passively sniff.
 
 # Comaptible Devices
 - Quicklock Doorlock

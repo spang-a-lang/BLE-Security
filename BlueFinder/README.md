@@ -14,7 +14,4 @@ Two modes exists within BlueFinder: Bluetooth Classic and BLE. To call the BLE r
 - Requires Bluez 5.29 (or greater)
 
 ## Version
-- v1.2 released 30 May 2016
-
-## Future Releases
-- v1.3a - transfering code to run completely in python compared to a comination of bash and python
+- v1.3a released 7 July 2016

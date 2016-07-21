@@ -8,7 +8,7 @@ Two modes exists within BlueFinder: Bluetooth Classic and BLE. To call the BLE r
 
 ## Requirements
 - Tested and developed on [Kali Linux](https://www.kali.org/) v2016.1.
-- [Bluetooth Smart USB Adapter] (BCM20702A0) (https://www.amazon.com/Plugable-Bluetooth-Adapter-Raspberry-Compatible/dp/B009ZIILLI/ref=sr_1_2?s=pc&ie=UTF8&qid=1469111177&sr=1-2-spons&keywords=bluetooth+adapter&psc=1)
+- [Bluetooth Smart USB Adapter (BCM20702A0)] (https://www.amazon.com/Plugable-Bluetooth-Adapter-Raspberry-Compatible/dp/B009ZIILLI/ref=sr_1_2?s=pc&ie=UTF8&qid=1469111177&sr=1-2-spons&keywords=bluetooth+adapter&psc=1)
 - [Sena UD100 BLuetooth USB Adapter] (https://www.amazon.com/Sena-UD100-Bluetooth-Class1-Adapter/dp/B01BHD7WR2)
 
 ## Build and Install

@@ -3,33 +3,74 @@
 import time
 import binascii
 import os
+import threading
 import signal
 from scapy.all import *
 
 def main():
+	user_input = [None]
 	s = bindsock()
-
 	LEsetscan(s, "00", "00")
 
-	if sys.argv[1] == "-b":
-		btle(s)
-	if sys.argv[1] == "-c":
-		BD_Addr = sys.argv[2]
-		BD_Addr = BD_Addr.replace(":", "")
-		BD_Addr = bytearray.fromhex(BD_Addr)
-		BD_Addr.reverse()
-		BD_Addr = binascii.hexlify(BD_Addr)
+	mythread = threading.Thread(target=get_user_input, args=(user_input,))
+	mythread.daemon = True
+	mythread.start()
 
-		clas_connect(s, BD_Addr)
-		time.sleep(2)
+	if len(sys.argv) == 1:
+		print '\n' + "                      BlueFinder v1.3a"
+	 	print "      python BlueFinder.py <sel> <-l> <Ant> <BD_Addr>"
+		print '\n\n' + "                     DESCRIPTION"
+  		print "         <sel>              -c - Classic, -b - Low-Energy"
+  		print "          <-l>              Long-range mode for use with UD-100 (optional)"
+  		print "         <Ant>              Antenna Gain [3, 9, 15]             (optional)"
+		print "       <BD_Addr>            Bluetooth Device Address"
 
-		while True:
+
+	elif len(sys.argv) == 3:
+		if sys.argv[1] == "-b":
+			btle(s, sys.argv[2], user_input, -60)
+		elif sys.argv[1] == "-c":
+			classic(s, user_input)
+		else:
+			print("Error: invalid selection")
+
+	elif len(sys.argv) == 5:
+		if sys.argv[3] == "3":
+			btle(s, sys.argv[4], user_input, -26)
+		elif sys.argv[3] == "9":
+			btle(s, sys.argv[4], user_input, -24)
+		elif sys.argv[3] == "15":
+			btle(s, sys.argv[4], user_input, -22)
+		else:
+			print("Error: invalid gain")
+
+	else:
+			print("Error: invalid input")
+
+	disconnect(s)
+	sys.exit()
+	return(s)
+
+def get_user_input(user_input_ref):
+    user_input_ref[0] = raw_input()
+
+def classic(s, user_input):
+	BD_Addr = sys.argv[2]
+	BD_Addr = BD_Addr.replace(":", "")
+	BD_Addr = bytearray.fromhex(BD_Addr)
+	BD_Addr.reverse()
+	BD_Addr = binascii.hexlify(BD_Addr)
+
+	clas_connect(s, BD_Addr)
+	time.sleep(2)
+
+	while not keystop():
+		try:
 			RSSI = []
-			while len(RSSI) < 50:
+			while len(RSSI) < 100:
 				data = s.recv()
 				data = repr(data)
 
-				# ping
 				raw = bytearray.fromhex("020b0034003000010008c82c004142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f60616263646566676841424344")
 				s.send(raw)
 				time.sleep(.01)
@@ -41,62 +82,58 @@ def main():
 							new = part[10:18]
 							new = new.replace("\\x", "")
 							RSSI.append(s16(int(("0x"+new),16)))
-							#print(new)
-						#print part
 			dist(RSSI, 0)
-	else:
-		print("invalid input")
+		except KeyboardInterrupt:
+				print "\nExiting BlueFinder"
+				LEsetscan(s, "00", "00")
+				disconnect(s)
+				sys.exit()
+				return()
 
-	disconnect(s)
-	
 def s16(value):
     return -(value & 0x80) | (value & 0x7f)
 
 # btle
-def btle(s):
+def btle(s, input_addr, user_input, int_RSSI):
 	LEsetscanparam(s, "01")
 	LEsetscan(s, "01", "00")
-	while True:
-		RSSI = []
-		BD_Addr = []
-		while len(RSSI) < 50:
-			data = s.recv()
-			data = repr(data)
+	
+	while not keystop():
+		try:
+			RSSI = []
+			BD_Addr = []
+			while len(RSSI) < 50:
+				data = s.recv()
+				data = repr(data)
 
-			for line in data.splitlines():
-				for part in line.split():
-					if "addr=" in part:
-						BD_Addr.append(part[5:22])
-					if "load=" in part:
-						RSSI.append(s16(int(part[8:10],16)))
+				for line in data.splitlines():
+					for part in line.split():
+						if "addr=" in part:
+							BD_Addr.append(part[5:22])
+						if "load=" in part:
+							RSSI.append(s16(int(part[8:10],16)))
+				for i, item in enumerate(BD_Addr):
+					if item.lower() != input_addr.lower():
+						del RSSI[i]
+						del BD_Addr[i]
 
-			for i, item in enumerate(BD_Addr):
-				input_addr = sys.argv[2]
-				if item.lower() != input_addr.lower():
-					del RSSI[i]
-					del BD_Addr[i]
+			dist(RSSI, int_RSSI)
 
-		dist(RSSI, -60)
-	LEsetscan(s, "00", "00")
+		except KeyboardInterrupt:
+			print "\nExiting BlueFinder"
+			LEsetscan(s, "00", "00")
+			disconnect(s)
+			sys.exit()
+			return()
+
 
 def dist(RSSI, int_RSSI):
 	distance=[]
-
-	# RSSI from bash script and convert to floating point
-	#for element in sys.argv[2:]:
-	#	RSSI.append(element)
 	RSSI=map(float, RSSI)
-
-	# calculate distance
 	for i in RSSI[0:]:
+		#printtofile(i)			# enable if recording RSSI
 		distance.append(round(10**((int_RSSI - i)/20),1))
-		#print "%r" % (i)
-
-	#for n in distance[0:]:
-	#	print "%r m" % (n)
 	avgdistance = round(sum(distance) / float(len(distance)),1)
-	#for n in distance[0:]:
-	#	print "%r m" % (n)
 	print "%r m" % (avgdistance)
 
 def clas_connect(BT_conn, addr):
@@ -152,28 +189,27 @@ def bindsock():
 def rssi(s):
 	ran = bytearray.fromhex("010514020b00")
 	s.send(ran)
-# classic
 
-# def classic_dist():
-# 	RSSI=[]
-# 	distance=[]
+def disconnect(s):
+	raw = "01060403400013"
+	raw = bytearray.fromhex(raw)
+	s.send(raw)
 
-# 	# RSSI from bash script and convert to floating point
-# 	for element in sys.argv[2:]:
-# 		RSSI.append(element)
-# 	RSSI=map(float, RSSI)
+def printtofile(RSSI):
+	f = open('1m.txt','a')
+	f.write(str(RSSI) + ' ')
+	f.close()
 
-# 	# calculate distance
-# 	for i in RSSI[0:]:
-# 		distance.append(round(10**((-2 - i)/20),1))
-# 		#print "%r" % (i)
-
-
-# 	avgdistance = round(sum(distance) / float(len(distance)),1)
-# 	#for n in distance[0:]:
-# 	#	print "%r m" % (n)
-# 	print "%r m" % (avgdistance)
-
+def keystop(delay = 0):
+	return len(select.select([sys.stdin], [], [], delay)[0])
 
 if __name__ == "__main__":
-	    main()
+		while not keystop():
+			try:
+				main()
+			except KeyboardInterrupt:
+				print "\n Exiting BlueFinder"
+			except IndexError:
+				print "Error: Index"
+			finally:
+				sys.exit()

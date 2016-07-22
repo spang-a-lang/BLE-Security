@@ -6,5 +6,5 @@ A rangefinding application used to identify and locate IEEE 802.15.1 devices. Th
 ## Hacking Bluetooth Low Energy Locks
 A Bluetooth Low Energy (BLE) stack for communicating to BLE devices using the Host Controller Interface (HCI).
 
-## Rogue Device
+## Rogue Devices
 Creates a spoofed version of the Bluetooth Low Energy devices using Bleno. These are files that can be used with [Bleno](https://github.com/sandeepmistry/bleno).
